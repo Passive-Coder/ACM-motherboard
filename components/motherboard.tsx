@@ -8,6 +8,7 @@ import {
   Text,
 } from "@react-three/drei";
 import * as THREE from "three";
+import { useNavigate } from 'react-router-dom';
 
 /*
   Highly-detailed primitives-only motherboard model.
@@ -629,6 +630,20 @@ function PCBCircuitTraces() {
 /* ---------- Full Layout (arranged to match image) ---------- */
 
 function MotherboardLayoutAccurate({ onDomainClick }: { onDomainClick: (domain: string, position: [number, number, number]) => void }) {
+  const [isMobile, setIsMobile] = useState(false);
+
+  useEffect(() => {
+    const checkMobile = () => {
+      setIsMobile(window.innerWidth < 768);
+    };
+    
+    checkMobile();
+    window.addEventListener('resize', checkMobile);
+    return () => window.removeEventListener('resize', checkMobile);
+  }, []);
+
+  // Responsive font sizes
+  const getFontSize = (baseSize: number) => isMobile ? baseSize * 1.2 : baseSize;
   const capPositions = [
     [2.6, 0.22, -0.9],
     [3.1, 0.22, -0.4],
@@ -661,7 +676,7 @@ function MotherboardLayoutAccurate({ onDomainClick }: { onDomainClick: (domain: 
           <PCISlot pos={[0, 0.08, -0.6]} length={4.0} />
           <PCISlot pos={[0, 0.08, 0.6]} length={4.0} />
           <PCISlot pos={[0, 0.08, 1.8]} length={4.0} />
-          <Text position={[0, 0.3, 0]} fontSize={0.4} color={"#ffffff"} rotation={[-Math.PI / 2, 0, 0]}>design</Text>
+          <Text position={[0, 0.3, 0]} fontSize={getFontSize(0.4)} color={"#ffffff"} rotation={[-Math.PI / 2, 0, 0]}>design</Text>
         </group>
       </ClickableComponent>
 
@@ -717,7 +732,7 @@ function MotherboardLayoutAccurate({ onDomainClick }: { onDomainClick: (domain: 
           {[0, 1, 2, 3].map((i) => (
             <RAMSlot key={i} pos={[0, 0.06, i * 0.4 - 0.6]} length={3.5} />
           ))}
-          <Text position={[0, 0.6, -1.0]} fontSize={0.35} color={"#ffffff"} rotation={[-Math.PI / 2, 0, 0]}>competitive coding</Text>
+          <Text position={[0, 0.6, -1.0]} fontSize={getFontSize(0.35)} color={"#ffffff"} rotation={[-Math.PI / 2, 0, 0]}>competitive coding</Text>
         </group>
       </ClickableComponent>
 
@@ -728,7 +743,7 @@ function MotherboardLayoutAccurate({ onDomainClick }: { onDomainClick: (domain: 
           <PCIESlot pos={[0, 0.06, 2.8]} length={5.0} />
           {/* Additional shorter PCI-E slot */}
           <PCIESlot pos={[2.5, 0.06, 1.5]} length={3.5} />
-          <Text position={[1.5, 0.3, 2.0]} fontSize={0.4} color={"#ffffff"} rotation={[-Math.PI / 2, 0, 0]}>research</Text>
+          <Text position={[1.5, 0.3, 2.0]} fontSize={getFontSize(0.4)} color={"#ffffff"} rotation={[-Math.PI / 2, 0, 0]}>research</Text>
         </group>
       </ClickableComponent>
 
@@ -885,9 +900,21 @@ function RotatableMotherboard() {
   const [targetRotation, setTargetRotation] = useState({ x: 0, y: 0 });
   const [isZooming, setIsZooming] = useState(false);
   const [zoomTarget, setZoomTarget] = useState<[number, number, number] | null>(null);
+  const [isMobile, setIsMobile] = useState(false);
   
   const { size, camera } = useThree();
+  const navigate = useNavigate();
   const maxRotation = THREE.MathUtils.degToRad(20); // 20 degrees max rotation
+
+  useEffect(() => {
+    const checkMobile = () => {
+      setIsMobile(window.innerWidth < 768);
+    };
+    
+    checkMobile();
+    window.addEventListener('resize', checkMobile);
+    return () => window.removeEventListener('resize', checkMobile);
+  }, []);
   
   // Handle domain clicks with balanced zoom animation
   const handleDomainClick = (domain: string, position: [number, number, number]) => {
@@ -897,17 +924,20 @@ function RotatableMotherboard() {
     setIsZooming(true);
     setZoomTarget(position);
     
-    // Moderate rotation for visual feedback
+    // Mobile-responsive rotation
+    const rotationMultiplier = isMobile ? 0.6 : 1.0; // Less dramatic on mobile
     setTargetRotation(prev => ({
-      x: prev.x + THREE.MathUtils.degToRad(8), // Balanced rotation
-      y: prev.y + THREE.MathUtils.degToRad(3)  // Slight Y rotation
+      x: prev.x + THREE.MathUtils.degToRad(8 * rotationMultiplier), 
+      y: prev.y + THREE.MathUtils.degToRad(3 * rotationMultiplier)  
     }));
     
-    // Reasonable zoom duration
+    // Faster navigation on mobile for better UX
+    const duration = isMobile ? 2000 : 2500;
     setTimeout(() => {
       // Navigate to domain page after zoom completes
-      window.location.href = `/${domain.replace(' ', '-')}`;
-    }, 2500); // 2.5 second zoom animation
+      let route = `/${domain.replace(' ', '-')}`;
+      navigate(route);
+    }, duration);
   };
   
   // Animation loop for rotation and zoom
@@ -935,12 +965,13 @@ function RotatableMotherboard() {
       );
     }
     
-    // Handle balanced zoom animation - close but not too extreme
+    // Handle balanced zoom animation - responsive for mobile
     if (isZooming && zoomTarget && camera) {
+      const mobileOffset = isMobile ? 1 : 0; // Slightly further back on mobile
       const targetPosition = new THREE.Vector3(
         zoomTarget[0], 
-        zoomTarget[1] + 3, // Good viewing distance above component
-        zoomTarget[2] + 2  // Reasonable distance from component
+        zoomTarget[1] + 3 + mobileOffset, // Good viewing distance above component
+        zoomTarget[2] + 2 + mobileOffset  // Reasonable distance from component
       );
       
       // Smooth camera movement towards target
@@ -998,9 +1029,14 @@ function RotatableMotherboard() {
   const handlePointerDown = (e: any) => {
     e.stopPropagation();
     setIsDragging(true);
+    
+    // Handle both mouse and touch events
+    const clientX = e.clientX || (e.touches && e.touches[0]?.clientX) || 0;
+    const clientY = e.clientY || (e.touches && e.touches[0]?.clientY) || 0;
+    
     setDragStart({
-      x: (e.clientX / size.width) * 2 - 1,
-      y: -(e.clientY / size.height) * 2 + 1
+      x: (clientX / size.width) * 2 - 1,
+      y: -(clientY / size.height) * 2 + 1
     });
   };
   
@@ -1018,9 +1054,37 @@ function RotatableMotherboard() {
 
 /* ---------- Wrapper scene ---------- */
 export default function Motherboard3D() {
+  const [isMobile, setIsMobile] = useState(false);
+
+  useEffect(() => {
+    const checkMobile = () => {
+      setIsMobile(window.innerWidth < 768);
+    };
+    
+    checkMobile();
+    window.addEventListener('resize', checkMobile);
+    return () => window.removeEventListener('resize', checkMobile);
+  }, []);
+
   return (
-    <div style={{ width: "100%", height: "100vh", background: "#0b2430", overflow: "hidden" }}>
-      <Canvas shadows dpr={[1, 2]}>
+    <div style={{ 
+      width: "100%", 
+      height: "100vh", 
+      background: "#0b2430", 
+      overflow: "hidden",
+      touchAction: "manipulation" // Better touch handling
+    }}>
+      <Canvas 
+        shadows={!isMobile} // Disable shadows on mobile for performance
+        dpr={isMobile ? [1, 1.5] : [1, 2]} // Lower DPR for mobile performance
+        gl={{ 
+          antialias: !isMobile, // Disable antialiasing on mobile for performance
+          powerPreference: "high-performance",
+          alpha: false, // Better performance
+          stencil: false // Better performance
+        }}
+        frameloop="demand" // Only render when needed for better mobile battery life
+      >
         <color attach="background" args={["#002430"]} />
 
         {/* Lighting: front + fill + subtle rim */}
@@ -1034,8 +1098,12 @@ export default function Motherboard3D() {
           <RotatableMotherboard />
         </Suspense>
 
-        {/* Fixed camera. Locking controls is intentional. */}
-        <PerspectiveCamera makeDefault position={[0, 0, 20]} fov={45} />
+        {/* Responsive camera positioning */}
+        <PerspectiveCamera 
+          makeDefault 
+          position={isMobile ? [0, 0, 25] : [0, 0, 20]} 
+          fov={isMobile ? 60 : 45} 
+        />
       </Canvas>
     </div>
   );

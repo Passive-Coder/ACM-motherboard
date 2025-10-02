@@ -176,30 +176,30 @@ function Heatsink({ pos = [1.6, 0.3, -0.5], w = 2.2, h = 0.6, d = 1.8, fins = 9 
 }
 
 /* Chipset grid: array of tiny cubes */
-function ChipsetGrid({ pos = [0.6, 0.12, 0.6], cols = 8, rows = 8, pitch = 0.18 }: { pos?: [number, number, number], cols?: number, rows?: number, pitch?: number }) {
-  const cubes = useMemo(() => {
-    const out: [number, number, number][] = [];
-    const w = (cols - 1) * pitch;
-    const h = (rows - 1) * pitch;
-    for (let r = 0; r < rows; r++) {
-      for (let c = 0; c < cols; c++) {
-        out.push([c * pitch - w / 2, 0.08, r * pitch - h / 2]);
-      }
-    }
-    return out;
-  }, [cols, rows, pitch]);
+// function ChipsetGrid({ pos = [0.6, 0.12, 0.6], cols = 8, rows = 8, pitch = 0.18 }: { pos?: [number, number, number], cols?: number, rows?: number, pitch?: number }) {
+//   const cubes = useMemo(() => {
+//     const out: [number, number, number][] = [];
+//     const w = (cols - 1) * pitch;
+//     const h = (rows - 1) * pitch;
+//     for (let r = 0; r < rows; r++) {
+//       for (let c = 0; c < cols; c++) {
+//         out.push([c * pitch - w / 2, 0.08, r * pitch - h / 2]);
+//       }
+//     }
+//     return out;
+//   }, [cols, rows, pitch]);
 
-  return (
-    <group position={pos as [number, number, number]} >
-      {cubes.map((p, i) => (
-        <mesh key={i} position={p as [number, number, number]} castShadow>
-          <boxGeometry args={[0.14, 0.14, 0.14]} />
-          <meshStandardMaterial color={"#181818"} metalness={0.6} roughness={0.25} />
-        </mesh>
-      ))}
-    </group>
-  );
-}
+//   return (
+//     <group position={pos as [number, number, number]} >
+//       {cubes.map((p, i) => (
+//         <mesh key={i} position={p as [number, number, number]} castShadow>
+//           <boxGeometry args={[0.14, 0.14, 0.14]} />
+//           <meshStandardMaterial color={"#181818"} metalness={0.6} roughness={0.25} />
+//         </mesh>
+//       ))}
+//     </group>
+//   );
+// }
 
 /* Capacitor with blue top */
 function CapBlue({ pos = [0, 0.22, 0], h = 0.36, r = 0.14 }: { pos?: [number, number, number], h?: number, r?: number }) {
@@ -305,20 +305,20 @@ function CopperTraces({ positions }: { positions: [number, number, number, numbe
 }
 
 /* Generic slot component for various connectors */
-function Slot({ pos = [0, 0.06, 0], size = [9.6, 0.09, 0.36] } : { pos: [number, number, number], size?: [number, number, number]}) {
-  return (
-    <group position={pos}>
-      <mesh castShadow>
-        <boxGeometry args={size} />
-        <meshStandardMaterial color={"#8b6e48"} metalness={0.3} roughness={0.35} />
-      </mesh>
-      <mesh position={[0, size[1] / 2, 0]} castShadow>
-        <boxGeometry args={[size[0] * 0.95, size[1] * 0.3, size[2] * 0.8]} />
-        <meshStandardMaterial color={"#654422"} metalness={0.45} roughness={0.2} />
-      </mesh>
-    </group>
-  );
-}
+// function Slot({ pos = [0, 0.06, 0], size = [9.6, 0.09, 0.36] } : { pos: [number, number, number], size?: [number, number, number]}) {
+//   return (
+//     <group position={pos}>
+//       <mesh castShadow>
+//         <boxGeometry args={size} />
+//         <meshStandardMaterial color={"#8b6e48"} metalness={0.3} roughness={0.35} />
+//       </mesh>
+//       <mesh position={[0, size[1] / 2, 0]} castShadow>
+//         <boxGeometry args={[size[0] * 0.95, size[1] * 0.3, size[2] * 0.8]} />
+//         <meshStandardMaterial color={"#654422"} metalness={0.45} roughness={0.2} />
+//       </mesh>
+//     </group>
+//   );
+// }
 
 /* Power connector header component */
 function PowerHeader({ pos = [0, 0.2, 0], size = [1.6, 0.36, 0.4] } : { pos: [number, number, number], size?: [number, number, number]}) {
@@ -661,7 +661,7 @@ function MotherboardLayoutAccurate({ onDomainClick }: { onDomainClick: (domain: 
           <PCISlot pos={[0, 0.08, -0.6]} length={4.0} />
           <PCISlot pos={[0, 0.08, 0.6]} length={4.0} />
           <PCISlot pos={[0, 0.08, 1.8]} length={4.0} />
-          <Text position={[0, 0.3, 0]} fontSize={0.25} color={"#ffffff"} rotation={[-Math.PI / 2, 0, 0]}>design</Text>
+          <Text position={[0, 0.3, 0]} fontSize={0.4} color={"#ffffff"} rotation={[-Math.PI / 2, 0, 0]}>design</Text>
         </group>
       </ClickableComponent>
 
@@ -717,7 +717,7 @@ function MotherboardLayoutAccurate({ onDomainClick }: { onDomainClick: (domain: 
           {[0, 1, 2, 3].map((i) => (
             <RAMSlot key={i} pos={[0, 0.06, i * 0.4 - 0.6]} length={3.5} />
           ))}
-          <Text position={[0, 0.6, -1.0]} fontSize={0.25} color={"#ffffff"} rotation={[-Math.PI / 2, 0, 0]}>competitive coding</Text>
+          <Text position={[0, 0.6, -1.0]} fontSize={0.35} color={"#ffffff"} rotation={[-Math.PI / 2, 0, 0]}>competitive coding</Text>
         </group>
       </ClickableComponent>
 
@@ -728,7 +728,7 @@ function MotherboardLayoutAccurate({ onDomainClick }: { onDomainClick: (domain: 
           <PCIESlot pos={[0, 0.06, 2.8]} length={5.0} />
           {/* Additional shorter PCI-E slot */}
           <PCIESlot pos={[2.5, 0.06, 1.5]} length={3.5} />
-          <Text position={[1.5, 0.3, 2.0]} fontSize={0.25} color={"#ffffff"} rotation={[-Math.PI / 2, 0, 0]}>research</Text>
+          <Text position={[1.5, 0.3, 2.0]} fontSize={0.4} color={"#ffffff"} rotation={[-Math.PI / 2, 0, 0]}>research</Text>
         </group>
       </ClickableComponent>
 
@@ -856,38 +856,6 @@ function MotherboardLayoutAccurate({ onDomainClick }: { onDomainClick: (domain: 
         tech
       </Text>
       
-      <Text 
-        position={[-4.8, 0.9, -2.4]} 
-        fontSize={0.28} 
-        color={"#ffffff"} 
-        anchorX="center" 
-        anchorY="middle" 
-        rotation={[-Math.PI/2, 0, 0]}
-      >
-    
-      </Text>
-      
-      <Text 
-        position={[-1.5, 0.9, 3.8]} 
-        fontSize={0.25} 
-        color={"#ffffff"} 
-        anchorX="center" 
-        anchorY="middle" 
-        rotation={[-Math.PI/2, 0, 0]}
-      >
-        
-      </Text>
-      
-      <Text 
-        position={[0, 0.9, 4.5]} 
-        fontSize={0.3} 
-        color={"#ffffff"} 
-        anchorX="center" 
-        anchorY="middle" 
-        rotation={[-Math.PI/2, 0, 0]}
-      >
-        
-      </Text>
       <Text position={[4.9, 0.9, -4.2]} fontSize={0.15} color={"#ffffff"} anchorX="center" anchorY="middle" rotation={[-Math.PI/2, 0, 0]}>ATX_PWR</Text>
       <Text position={[-4.5, 0.9, -4.5]} fontSize={0.15} color={"#ffffff"} anchorX="center" anchorY="middle" rotation={[-Math.PI/2, 0, 0]}>CPU_PWR</Text>
       
